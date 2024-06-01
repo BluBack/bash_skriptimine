@@ -1,0 +1,22 @@
+function Test-UserExists {
+    param (
+        [string]$username
+    )
+    $user = Get-ADUser -Filter { SamAccountName -eq $username } -ErrorAction SilentlyContinue
+    return [bool]($user -ne $null)
+}
+
+$users = @("existinguser1", "existinguser2", "newuser1", "newuser2")
+
+foreach ($user in $users) {
+    if (Test-UserExists -username $user) {
+        Write-Host "Kasutaja '$user' on juba olemas Active Directory-s. Lisamist pole võimalik." -ForegroundColor Yellow
+    } else {
+        try {
+            New-ADUser -SamAccountName $user -Name $user -Enabled $true -ErrorAction Stop
+            Write-Host "Kasutaja '$user' edukalt lisatud Active Directory-sse." -ForegroundColor Green
+        } catch {
+            Write-Host "Kasutaja '$user' lisamine ebaõnnestus. Viga: $_" -ForegroundColor Red
+        }
+    }
+}
