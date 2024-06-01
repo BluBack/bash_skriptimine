@@ -1,18 +1,14 @@
-#!/bin/bash
+$eesnimi = Read-Host -Prompt "Sisesta oma eesnimi:"
+$perenimi = Read-Host -Prompt "Sisesta oma perenimi:"
 
-# 1. Küsi kasutajalt ees- ja perenimi
-read -p "Sisesta oma eesnimi: " eesnimi
-read -p "Sisesta oma perenimi: " perenimi
+$kasutajanimi = "$($eesnimi.ToLower()).$($perenimi.ToLower())"
 
-# 2. Looge kasutajanimi
-kasutajanimi=$(echo "$eesnimi.$perenimi" | tr '[:upper:]' '[:lower:]')
+$parool = ConvertTo-SecureString "Parool1!" -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential ($kasutajanimi, $parool)
+New-LocalUser -Name $kasutajanimi -Description "Kasutaja $eesnimi $perenimi" -Password $cred
 
-# 3. Loo kasutaja süsteemis
-sudo useradd -m -s /bin/bash -p $(openssl passwd -1 "Parool1!") -c "Kasutaja $eesnimi $perenimi" $kasutajanimi
-
-# Kontrolli, kas kasutaja loomine oli edukas
-if [ $? -eq 0 ]; then
-    echo "Kasutaja $kasutajanimi loodi edukalt."
-else
-    echo "Kasutaja loomine ebaõnnestus!"
-fi
+if ($?) {
+    Write-Host "Kasutaja $kasutajanimi loodi edukalt."
+} else {
+    Write-Host "Kasutaja loomine ebaõnnestus!"
+}
