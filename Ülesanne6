@@ -1,0 +1,26 @@
+function Ensure-Directory {
+    param (
+        [string]$path
+    )
+    if (-not (Test-Path $path)) {
+        New-Item -ItemType Directory -Path $path | Out-Null
+    }
+}
+
+function Backup-UserHome {
+    param (
+        [string]$username
+    )
+    $date = Get-Date -Format "yyyyMMdd"
+    $backupName = "$username-$date.zip"
+    $sourcePath = "C:\Users\$username"
+    $backupPath = "C:\Backup\$backupName"
+    Compress-Archive -Path $sourcePath -DestinationPath $backupPath -Force
+}
+
+$users = Get-ChildItem -Path "C:\Users" | Where-Object { $_.PSIsContainer -and $_.Name -ne "Public" }
+Ensure-Directory -path "C:\Backup"
+
+foreach ($user in $users) {
+    Backup-UserHome -username $user.Name
+}
