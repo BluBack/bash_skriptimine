@@ -1,0 +1,20 @@
+$firstName = Read-Host "Sisesta kasutaja eesnimi"
+$lastName = Read-Host "Sisesta kasutaja perekonnanimi"
+
+function ConvertTo-Ascii {
+    param (
+        [string]$input
+    )
+    $normalized = $input.Normalize([Text.NormalizationForm]::FormD)
+    $ascii = $normalized -creplace '\p{M}', ''
+    return $ascii
+}
+
+$username = (ConvertTo-Ascii ($firstName + $lastName)).ToLower()
+
+try {
+    Remove-ADUser -Identity $username -Confirm:$false -ErrorAction Stop
+    Write-Host "Kasutaja '$username' edukalt kustutatud." -ForegroundColor Green
+} catch {
+    Write-Host "Kasutaja kustutamine ebaõnnestus. Viga: $_" -ForegroundColor Red
+}
