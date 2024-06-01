@@ -1,0 +1,10 @@
+$firstName = Read-Host "Sisesta kasutaja eesnimi"
+$lastName = Read-Host "Sisesta kasutaja perekonnanimi"
+$username = $firstName.ToLower() + "." + $lastName.ToLower()
+
+try {
+    Remove-LocalUser -Name $username -ErrorAction Stop
+    Write-Host "Kasutaja '$username' edukalt kustutatud."
+} catch {
+    Write-Host "Kasutaja kustutamine ebaõnnestus. Viga: $_" -ForegroundColor Red
+}
